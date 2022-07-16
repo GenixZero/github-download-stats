@@ -40,7 +40,6 @@ async function getDownloads(req: NextApiRequest) {
     const username = req.query.username;
     if (username && /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(username.toString())) {
         const cacheElm = cache[username.toString().toLowerCase()];
-        console.log(cacheElm);
         if (cacheElm !== undefined && Date.now() - cacheElm.time < (process.env.CACHE_DURATION || 180000)) {
             return cacheElm.downloads;
         } else {
@@ -49,19 +48,36 @@ async function getDownloads(req: NextApiRequest) {
     
             const names: string[] = [];
 
+            let returns = 0;
+            let neededReturns = 0;
+
             for (let i = 0; i < repos.length; i++) {
                 const repoName = repos[i].name;
                 if (names.includes(repoName)) {
                     continue;
                 }
                 names.push(repoName);
-                const releases = await (await fetch(`https://api.github.com/repos/${username}/${repoName}/releases`)).json();
-                for (let l = 0; l < releases.length; l++) {
-                    const assets = releases[l].assets;
-                    for (let m = 0; m < assets.length; m++) {
-                        downloads += assets[m].download_count;
-                    }
+                neededReturns++;
+                fetch(`https://api.github.com/repos/${username}/${repoName}/releases`).then((res) => {
+                    res.json().then((releases) => {
+                        for (let l = 0; l < releases.length; l++) {
+                            const assets = releases[l].assets;
+                            for (let m = 0; m < assets.length; m++) {
+                                downloads += assets[m].download_count;
+                            }
+                        }
+
+                        returns++;
+                    });
+                });
+
+                if (neededReturns > 50) {
+                    break;
                 }
+            }
+
+            while (returns < neededReturns) {
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
 
             if (downloads >= 1000000000) {
