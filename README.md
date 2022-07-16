@@ -2,7 +2,7 @@
 
 ###
 
-<p align="left">Designed to be added to your github profiles readme. Shows your global download count across all of your public repositories.<br><br>Currently the limit is 50 repos for each account</p>
+<p align="left">Designed to be added to your github profile's readme. Shows your global download count across all of your public repositories.<br><br>Currently the limit is 50 repos for each account</p>
 
 ###
 
@@ -10,7 +10,7 @@
 
 ###
 
-<p align="left">Simply add this to your profile readme:<br><br></p>
+<p align="left">Simply add this to your profile readme but replace GENIXZERO with your account username:<br><br></p>
 
 > &lt;img src="https://github-download-stats.vercel.app/api/stats?username=GENIXZERO"/&gt;
 
